@@ -35,6 +35,8 @@
 ***/
 #include "bitlash.h"
 
+void displayBanner(void);
+void initlbuf(void);
 
 // Exception handling state
 // Syntax and execution errors are handled via longjmp

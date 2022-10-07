@@ -35,6 +35,12 @@
 ***/
 #include "bitlash.h"
 
+void oops(int errcode);
+void cmd_function(void);
+void eraseentry(char *id);
+void cmd_ls(void);
+void cmd_peep(void);
+void cmd_help(void);
 
 // Turn HEX_UPLOAD on to enable the hex file EEPROM uploader
 // It costs 78 bytes of flash

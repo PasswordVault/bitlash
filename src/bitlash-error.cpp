@@ -1,10 +1,10 @@
 /***
-	bitlash-demo.pde
+	bitlash-error.c
 
 	Bitlash is a tiny language interpreter that provides a serial port shell environment
 	for bit banging and hardware hacking.
 
-	This is an example demonstrating how to use the Bitlash2 library for Arduino 0015.
+	See the file README for documentation.
 
 	Bitlash lives at: http://bitlash.net
 	The author can be reached at: bill@bitlash.net
@@ -31,23 +31,46 @@
 	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 	OTHER DEALINGS IN THE SOFTWARE.
+
 ***/
-
-// This is the simplest bitlash integration.
-
 #include "bitlash.h"
 
-void setup(void) {
+void pointToError(void);
 
-	// initialize bitlash and set primary serial port baud
-	// print startup banner and run the startup macro
-	initBitlash(57600);
+void fatal2(char msg1, char msg2) { 
 
-	// you can execute commands here to set up initial state
-	// bear in mind these execute after the startup macro
-	// doCommand("print(1+1)");
+#ifdef SOFTWARE_SERIAL_TX
+	resetOutput();
+#endif
+
+#if !defined(TINY_BUILD)
+	pointToError(); 
+#endif
+	msgp(msg1); 
+	if (msg2) msgpl(msg2); 
+#ifdef PARSER_TRACE
+	tb();
+#endif
+
+	//traceback();
+
+	// Here we punt back to the setjmp in doCommand (bitlash.c)
+	longjmp(env, X_EXIT);
 }
 
-void loop(void) {
-	runBitlash();
+void fatal(char msgid) { fatal2(msgid, 0); }
+void expected(byte msgid) { fatal2(M_expected, msgid); }
+void expectedchar(byte c) { 
+#if !defined(TINY_BUILD)
+	spb(c); 
+#endif
+	fatal(M_expected); 
 }
+void unexpected(byte msgid) { fatal2(M_unexpected, msgid); }
+void missing(byte msgid) { fatal2(M_missing, msgid); }
+void underflow(byte msgid) { fatal2(msgid, M_underflow); }
+void overflow(byte msgid) { fatal2(msgid, M_overflow); }
+//void toolong(void) { overflow(M_string); }
+#if !defined(TINY_BUILD)
+void oops(int errcode) { printInteger(errcode, 0, 0); fatal(M_oops); }
+#endif

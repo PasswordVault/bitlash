@@ -35,6 +35,9 @@
 ***/
 #include "bitlash.h"
 
+char find_user_function(char *id);
+byte findbuiltin(char *name);
+
 #if defined(AVR_BUILD)
 #include "avr/eeprom.h"
 #endif
